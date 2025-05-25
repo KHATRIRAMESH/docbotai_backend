@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1748159519212,
+      "tag": "0000_deep_squadron_supreme",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748171975892,
+      "tag": "0001_ancient_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1748172289103,
+      "tag": "0002_young_lockheed",
+      "breakpoints": true
+    }
+  ]
+}
