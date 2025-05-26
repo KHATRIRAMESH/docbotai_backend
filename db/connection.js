@@ -6,7 +6,7 @@ import "dotenv/config.js";
 
 console.log("Connecting to Neon database...");
 const database_url = process.env.NEON_DATABASE_URL;
-console.log(`Using database URL: ${database_url}`);
+// console.log(`Using database URL: ${database_url}`);
 
 const sql = neon(process.env.NEON_DATABASE_URL);
 
@@ -15,15 +15,3 @@ if (!database_url) {
   throw new Error("NEON_DATABASE_URL environment variable is not set");
 }
 export const db = drizzle(sql, { schema });
-
-// Test connection function
-export async function testConnection() {
-  try {
-    await sql`SELECT 1`;
-    console.log("✅ Database connected successfully");
-    return true;
-  } catch (error) {
-    console.error("❌ Database connection failed:", error.message);
-    return false;
-  }
-}

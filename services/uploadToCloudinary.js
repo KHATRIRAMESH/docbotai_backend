@@ -1,5 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
-import "dotenv/config";
+import "dotenv/config.js";
+
+console.log("Configuring Cloudinary...", process.env.CLOUDINARY_CLOUD_NAME);
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,21 +9,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function uploadToCloudinary(file) {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const base64String = buffer.toString("base64");
-  const dataURI = `data:${file.type};base64,${base64String}`;
-
-  try {
-    const uploadResult = await uploadToCloudinary.uploader.upload(dataURI, {
-      folder: "docbot_ai",
-    });
-
-    console.log("File uploaded to Cloudinary:", uploadResult);
-    return uploadResult.secure_url;
-  } catch (error) {
-    console.log("Error uploading to Cloudinary:", error);
-    return null;
-  }
+export async function uploadToCloudinary(fileBuffer, mimetype) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "auto",
+        folder: "docbot_ai",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    stream.end(fileBuffer);
+  });
 }
