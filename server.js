@@ -1,8 +1,12 @@
 import "dotenv/config.js";
-
+import http from "http";
 import express from "express";
 import cors from "cors";
-import userRoutes from "./routes/users.js";
+import { Server } from "socket.io";
+import { initSocket } from "./socket.js";
+
+import userRoutes from "./routes/users.route.js";
+import fileRoutes from "./routes/files.route.js";
 
 // Create Express application
 const app = express();
@@ -15,6 +19,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
+
+initSocket(io);
+
+
+
 // Basic route for testing
 app.get("/", (req, res) => {
   res.json({
@@ -25,6 +41,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/upload-docs", fileRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
