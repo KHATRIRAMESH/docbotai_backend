@@ -1,3 +1,4 @@
+import { json } from "drizzle-orm/gel-core";
 import {
   pgTable,
   serial,
@@ -7,6 +8,7 @@ import {
   boolean,
   decimal,
   integer,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 // Users table
@@ -41,19 +43,16 @@ export const loanApplications = pgTable("loan_applications", {
 
 // Documents table
 export const documents = pgTable("documents", {
-  id: serial("id").primaryKey().unique(),
-  applicationId: integer("application_id")
-    .references(() => loanApplications.id)
-    .notNull(),
-  documentType: varchar("document_type", { length: 100 }).notNull(),
-  fileUrl: varchar("file_url", { length: 500 }).notNull(),
-  fileName: varchar("file_name", { length: 255 }),
-  fileSize: integer("file_size"),
-  mimeType: varchar("mime_type", { length: 100 }),
-  status: varchar("status", { length: 50 }).default("pending"), // 'pending', 'approved', 'rejected'
-  adminComment: text("admin_comment"),
-  uploadedAt: timestamp("uploaded_at").defaultNow(),
-  reviewedAt: timestamp("reviewed_at"),
+  id: serial("id").primaryKey(),
+  loanType: jsonb("loan_type"),
+  fullName: text("full_name"),
+  permanentAddress: text("permanent_address"),
+  currentAddress: text("current_address"),
+
+  secureUrl: jsonb("secure_url"), // From Cloudinary
+
+  // metadata
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Application comments table

@@ -5,10 +5,8 @@ import { getIO } from "../socket.js";
 import fs from "fs/promises";
 
 export const uploadDocument = async (req, res) => {
-  console.log("Uploading document...");
   try {
     const files = req.files;
-    console.log("Files received:", files);
     if (!files || files.length === 0) {
       return res.status(400).json({
         error: "No files uploaded",
@@ -24,32 +22,26 @@ export const uploadDocument = async (req, res) => {
       documentUrl.push(result);
     }
 
-    console.log("Document URL:", documentUrl);
+    const secureUrl = documentUrl.map((doc) => doc.secure_url);
+    // console.log("Uploaded documents:", secure_url);
+
+    console.log("Body: ", req.body);
+
+    const { loanType, fullName, permanentAddress, currentAddress } = req.body;
 
     const newFile = await db
       .insert(documents)
       .values({
-        applicationId: req.body.applicationId,
-        documentType: req.body.documentType,
-        fileUrl: documentUrl[0].secure_url, // Assuming you want to store the first uploaded file URL
-        fileName: req.body.fileName || documentUrl[0].original_filename,
-        fileSize: documentUrl[0].bytes,
-        mimeType: documentUrl[0].format,
-        status: "pending", // Default status
+        loanType,
+        fullName,
+        permanentAddress,
+        currentAddress,
+        secureUrl,
       })
-      .returning({
-        id: documents.id,
-        applicationId: documents.applicationId,
-        documentType: documents.documentType,
-        fileUrl: documents.fileUrl,
-        fileName: documents.fileName,
-        fileSize: documents.fileSize,
-        mimeType: documents.mimeType,
-        status: documents.status,
-        uploadedAt: documents.uploadedAt,
-      });
+      .returning();
+    console.log("New file record:", newFile);
 
-    return res.status(200).json(documentUrl);
+    return res.status(200).json(newFile);
   } catch (error) {
     console.error("Error uploading document:", error);
     return res.status(500).json({

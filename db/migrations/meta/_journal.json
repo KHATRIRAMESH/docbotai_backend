@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1748159519212,
-      "tag": "0000_deep_squadron_supreme",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1748171975892,
-      "tag": "0001_ancient_masque",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1748172289103,
-      "tag": "0002_young_lockheed",
+      "when": 1748332994025,
+      "tag": "0000_noisy_sebastian_shaw",
       "breakpoints": true
     }
   ]

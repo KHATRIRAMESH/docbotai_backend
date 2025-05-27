@@ -1,2 +1,0 @@
-ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_id_unique" UNIQUE("id");--> statement-breakpoint
-ALTER TABLE "notifications" ADD CONSTRAINT "notifications_id_unique" UNIQUE("id");
