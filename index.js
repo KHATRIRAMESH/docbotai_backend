@@ -58,17 +58,13 @@ const io = new Server(server, {
 initSocket(io);
 console.log("Socket.io initialized");
 
-
-
 // Serve /temp/uploads as public folder
 app.use("/temp/uploads", express.static(path.join(__dirname, "temp/uploads")));
+app.use(express.static(path.join(__dirname, "public")));
 // Basic route for testing
 app.get("/", (req, res) => {
-  res.json({
-    message: "Loan Application API Server is running!",
-    timestamp: new Date().toISOString(),
-    port: PORT,
-  });
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+  0;
 });
 
 app.use("/api/users", userRoutes);
