@@ -70,6 +70,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 // console.log("User routes initialized");
 app.use("/api/upload-docs", fileRoutes);
+app.use("/api/admin-verify", fileRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
