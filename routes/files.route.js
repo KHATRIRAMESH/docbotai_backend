@@ -1,10 +1,11 @@
 import express from "express";
-import { uploadDocument } from "../controller/files.controller.js";
-import { upload } from "../middlewares/multer.js";
+import { fileSentToAdmin } from "../controller/fileSentToAdmin.controller.js";
+import { localStore } from "../middlewares/multer.js";
 
 const router = express.Router();
 console.log("Files route initialized");
 
-router.post("/", upload.any(), uploadDocument);
+router.post("/", localStore.any(), fileSentToAdmin);
+
 
 export default router;

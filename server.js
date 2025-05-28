@@ -4,12 +4,18 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { initSocket } from "./socket.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import userRoutes from "./routes/users.route.js";
 import fileRoutes from "./routes/files.route.js";
 
 // Create Express application
 const app = express();
+
+// Required for __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Get port from environment or default to 5000
 const PORT = process.env.PORT || 8000;
@@ -44,13 +50,18 @@ app.use(express.urlencoded({ extended: true }));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["*", "http://localhost:3000/*"],
+    origin: ["http://localhost:3000"],
     methods: ["GET", "POST"],
   },
 });
 
 initSocket(io);
+console.log("Socket.io initialized");
 
+
+
+// Serve /temp/uploads as public folder
+app.use("/temp/uploads", express.static(path.join(__dirname, "temp/uploads")));
 // Basic route for testing
 app.get("/", (req, res) => {
   res.json({
@@ -86,7 +97,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📍 Local: http://localhost:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
