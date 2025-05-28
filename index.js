@@ -71,6 +71,7 @@ app.use("/api/users", userRoutes);
 // console.log("User routes initialized");
 app.use("/api/upload-docs", fileRoutes);
 app.use("/api/admin-verify", fileRoutes);
+app.use("/api/generate-docs", documentRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {
