@@ -44,7 +44,7 @@ export const verifyAndUploadDocuments = async (req, res) => {
       const absoluteFilePath = path.resolve(relativePath); // Use path.resolve for absolute path
       console.log("Attempting to process local file:", absoluteFilePath);
 
-      const result = await convertPdfToImages(absoluteFilePath, "temp/Images");
+      const result = await convertPdfToImages(absoluteFilePath, "temp/pdf2Images");
       console.log("PDF to image conversion result:", result);
 
       // --- CRITICAL: AWAIT the result of the async function ---
