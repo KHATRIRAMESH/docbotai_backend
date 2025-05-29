@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 
 import userRoutes from "./routes/users.route.js";
 import fileRoutes from "./routes/files.route.js";
+import documentsRoutes from "./routes/documents.route.js";
 
 // Create Express application
 const app = express();
@@ -71,7 +72,7 @@ app.use("/api/users", userRoutes);
 // console.log("User routes initialized");
 app.use("/api/upload-docs", fileRoutes);
 app.use("/api/admin-verify", fileRoutes);
-app.use("/api/generate-docs", documentRoutes);
+app.use("/api/generate-docs", documentsRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {

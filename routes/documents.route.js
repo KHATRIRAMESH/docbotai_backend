@@ -1,5 +1,5 @@
 import express from "express";
-import { generateExcelDocument } from "../controller/generateExcelDocument.controller";
+import { generateExcelDocument } from "../controller/generateExcelDocument.controller.js";
 
 const router = express.Router();
 

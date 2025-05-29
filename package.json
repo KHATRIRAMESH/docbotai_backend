@@ -21,6 +21,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/vision": "^5.1.0",
     "@neondatabase/serverless": "^1.0.0",
     "cloudinary": "^2.6.1",
     "cors": "^2.8.5",
@@ -28,7 +29,12 @@
     "drizzle-orm": "^0.43.1",
     "express": "^5.1.0",
     "multer": "^2.0.0",
-    "socket.io": "^4.8.1"
+    "openai": "^4.103.0",
+    "pdf-parse": "^1.1.1",
+    "pdf-to-img": "^4.4.0",
+    "sharp": "^0.34.2",
+    "socket.io": "^4.8.1",
+    "tesseract.js": "^6.0.1"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.1",
