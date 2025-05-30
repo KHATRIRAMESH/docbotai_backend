@@ -1,8 +1,8 @@
-import express from "express";
-import { generateExcelDocument } from "../controller/generateExcelDocument.controller.js";
+// import express from "express";
+// import { generateExcelDocument } from "../controller/generateExcelDocument.controller.js";
 
-const router = express.Router();
+// const router = express.Router();
 
-router.get("/", generateExcelDocument);
+// router.get("/", generateExcelDocument);
 
-export default router;
+// export default router;

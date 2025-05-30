@@ -2,10 +2,13 @@ import fs from "fs/promises"; // For async file operations if needed later
 import { db } from "../db/connection.js";
 import { documents } from "../db/schema.js";
 import { uploadToCloudinary } from "../services/uploadToCloudinary.js";
+import { processGoogleVisionOutput } from "../utils/extractingFuntion.js"; // Ensure this is the correct path
 
 import path from "path";
 import { processMyFile } from "../services/filesProcessingWithGoogleVision/fileProcessing.js"; // Correct import
 import { convertPdfToImages } from "../services/pdfToImage.js";
+import { getPngFilePaths } from "../utils/pdfFilePath.js";
+import { generateExcelDocument } from "../services/documentsGeneratingServices/excelSheetGenerating.js";
 
 export const verifyAndUploadDocuments = async (req, res) => {
   try {
@@ -18,18 +21,9 @@ export const verifyAndUploadDocuments = async (req, res) => {
       // filePaths, // If you're getting actual file paths from client/request
     } = req.body;
 
-    // --- IMPORTANT: Adjust this based on where your file is truly located ---
-    // Option 1: File is directly in 'temp/uploads' relative to your project root
-    const localFilePaths = [
-      "temp/uploads/The_Verdict.pdf", // This assumes your project has a 'temp/uploads' folder
-    ];
-
-    // Option 2: If the files are uploaded to a temporary server directory *before* this function runs,
-    // and `req.body.filePaths` contains just the filenames/relative paths
-    // e.g., if an earlier multer middleware saves them to /uploads/
-    // const uploadedFilenames = req.body.fileNames; // Example: ['The_Verdict.pdf']
-    // const uploadDir = path.join(process.cwd(), 'uploads'); // Assuming files are in /uploads/
-    // const localFilePaths = uploadedFilenames.map(filename => path.join(uploadDir, filename));
+    // const localFilePaths = await getPngFilePaths();
+    const localFilePaths = ["temp/uploads/esewa payment.jpg"];
+    console.log("Local file paths retrieved:", localFilePaths);
 
     if (!localFilePaths || localFilePaths.length === 0) {
       return res.status(400).json({
@@ -40,16 +34,13 @@ export const verifyAndUploadDocuments = async (req, res) => {
 
     const documentUrls = []; // Renamed to plural for clarity if multiple
 
+    let extractedTextResults = ""; // Store results of text extraction
+
     for (const relativePath of localFilePaths) {
-      const absoluteFilePath = path.resolve(relativePath); // Use path.resolve for absolute path
-      console.log("Attempting to process local file:", absoluteFilePath);
-
-      const result = await convertPdfToImages(absoluteFilePath, "temp/pdf2Images");
-      console.log("PDF to image conversion result:", result);
-
-      // --- CRITICAL: AWAIT the result of the async function ---
-      const extractedTextResult = await processMyFile(absoluteFilePath);
-      console.log("Result of file processing:\n", extractedTextResult);
+      //now the png files in the temp/pdf2Images folder are ready to be processed
+      const extractedTextResult = await processMyFile(relativePath);
+      console.log("Result of file processing:\n", typeof extractedTextResult);
+      extractedTextResults = extractedTextResult;
 
       // --- Handle the case where Google Vision found no text ---
       if (
@@ -59,31 +50,37 @@ export const verifyAndUploadDocuments = async (req, res) => {
         console.warn(
           `Skipping upload for ${relativePath} due to OCR failure or file not found.`
         );
-        // You might want to store this warning/error in your DB or return it to the user
-        // For now, let's just continue or explicitly handle it
-        // return res.status(422).json({
-        //     error: "Document processing failed",
-        //     message: `Failed to extract text from ${path.basename(relativePath)}: ${extractedTextResult}`
-        // });
       }
+      // const absoluteFilePath = path.resolve(relativePath); // Use path.resolve for absolute path
+      // console.log("Attempting to process local file:", absoluteFilePath);
 
-      // --- If you still want to upload the original file regardless of OCR result ---
-      // Read the file buffer for upload to Cloudinary
-      const fileBuffer = await fs.readFile(absoluteFilePath);
-      // You might need a mime type for Cloudinary, e.g., 'application/pdf' or 'image/png'
-      // You can infer it from the extension or use a library like 'mime-types'
-      const uploadResult = await uploadToCloudinary(fileBuffer, {
-        /* optional cloudinary options like resource_type */
-      });
-      documentUrls.push(uploadResult.secure_url);
+      // const result = await convertPdfToImages(
+      //   absoluteFilePath,
+      //   "temp/pdf2Images"
+      // );
+      // console.log("PDF to image conversion result:", result);
+
+      // for (const imagePath of result) {
+      // }
+
+      // const fileBuffer = await fs.readFile(absoluteFilePath);
+
+      // const uploadResult = await uploadToCloudinary(fileBuffer, {
+      /* optional cloudinary options like resource_type */
+      // });
+      // documentUrls.push(uploadResult.secure_url);
     }
 
-    // --- Assuming you want to proceed with DB insertion even if OCR failed for some files ---
-    // If you want to skip DB insertion for files that failed OCR, move this inside the loop
-    const secureUrlArray = documentUrls; // Array of secure_url strings
+    const result = await processGoogleVisionOutput(extractedTextResults);
+    console.log("Structured Data Result:", result);
+
+    const excelResult = await generateExcelDocument();
+    console.log("Excel document generated:", excelResult);
+
+    // const secureUrlArray = documentUrls; // Array of secure_url strings
 
     // Uncomment and use this block once you are satisfied with file processing
-    // const newFile = await db
+    // const newFile = await db 
     //   .insert(documents)
     //   .values({
     //     userId,
