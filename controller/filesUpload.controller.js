@@ -12,35 +12,41 @@ import { generateExcelDocument } from "../services/documentsGeneratingServices/e
 
 export const verifyAndUploadDocuments = async (req, res) => {
   try {
-    const {
-      userId,
-      loanType,
-      fullName,
-      permanentAddress,
-      currentAddress,
-      // filePaths, // If you're getting actual file paths from client/request
-    } = req.body;
+    // const {
+    //   userId,
+    //   loanType,
+    //   fullName,
+    //   permanentAddress,
+    //   currentAddress,
+    //   filePaths, // If you're getting actual file paths from client/request
+    // } = req.body;
+    const { loanType, fullName, permanentAddress, currentAddress } = req.body;
+    const files = req.files;
 
-    // const localFilePaths = await getPngFilePaths();
-    const localFilePaths = ["temp/uploads/esewa payment.jpg"];
-    console.log("Local file paths retrieved:", localFilePaths);
+    const pathURl = [];
+    const projectRoot = path.resolve();
+    files.map((file) => {
+      const filePath = file.path;
+      const relativeFilePath = path.relative(projectRoot, filePath);
+      pathURl.push(relativeFilePath);
+    });
+    console.log("Relative paths of uploaded files:", pathURl);
 
-    if (!localFilePaths || localFilePaths.length === 0) {
+    if (!pathURl || pathURl.length === 0) {
       return res.status(400).json({
         error: "No files to upload",
         message: "filePaths array is required",
       });
     }
 
-    const documentUrls = []; // Renamed to plural for clarity if multiple
+    // const documentUrls = []; // Renamed to plural for clarity if multiple
 
     let extractedTextResults = ""; // Store results of text extraction
 
-    for (const relativePath of localFilePaths) {
+    for (const relativePath of pathURl) {
       //now the png files in the temp/pdf2Images folder are ready to be processed
       const extractedTextResult = await processMyFile(relativePath);
-      console.log("Result of file processing:\n", typeof extractedTextResult);
-      extractedTextResults = extractedTextResult;
+      extractedTextResults += extractedTextResult;
 
       // --- Handle the case where Google Vision found no text ---
       if (
@@ -74,13 +80,13 @@ export const verifyAndUploadDocuments = async (req, res) => {
     const result = await processGoogleVisionOutput(extractedTextResults);
     console.log("Structured Data Result:", result);
 
-    const excelResult = await generateExcelDocument();
-    console.log("Excel document generated:", excelResult);
+    // const excelResult = await generateExcelDocument();
+    // console.log("Excel document generated:", excelResult);
 
     // const secureUrlArray = documentUrls; // Array of secure_url strings
 
     // Uncomment and use this block once you are satisfied with file processing
-    // const newFile = await db 
+    // const newFile = await db
     //   .insert(documents)
     //   .values({
     //     userId,
