@@ -522,7 +522,7 @@ ${text}`, // Note: In JS, multiline strings are created with backticks.
         "name_of_last_employer",
         "referee_name",
         "document_type",
-        "raw_extracted_text",
+        // "raw_extracted_text",
       ];
 
       // Ensure all expected fields exist with either their value or "N/A"

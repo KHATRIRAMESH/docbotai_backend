@@ -15,6 +15,7 @@ export async function uploadToCloudinary(fileBuffer, mimeType) {
       {
         resource_type: "auto",
         folder: "docbot_ai",
+        
       },
       (error, result) => {
         if (error) return reject(error);

@@ -62,6 +62,7 @@ console.log("Socket.io initialized");
 
 // Serve /temp/uploads as public folder
 app.use("/temp/uploads", express.static(path.join(__dirname, "temp/uploads")));
+app.use("/temp/excel", express.static(path.join(__dirname, "/temp/excel")));
 app.use(express.static(path.join(__dirname, "public")));
 // Basic route for testing
 app.get("/", (req, res) => {

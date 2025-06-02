@@ -1,17 +1,13 @@
 import excelJS from "exceljs";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { promises as fs } from "fs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+const outputPath = "temp/excel";
 export const generateExcelDocument = async (input) => {
   const dataArray = Array.isArray(input) ? input : [input];
   // console.log("Generating Excel document with data: ", dataArray);
+  await fs.mkdir(outputPath, { recursive: true });
   try {
-    const excelPath = path.join(__dirname, "../temp/excel");
-    fs.mkdirSync(excelPath, { recursive: true });
+    // const excelPath = path.join(__dirname, "../temp/excel");
 
     const workbook = new excelJS.Workbook();
     const worksheet = workbook.addWorksheet("Document Data");
@@ -52,7 +48,7 @@ export const generateExcelDocument = async (input) => {
     };
 
     const time = new Date().toISOString().replace(/[:.]/g, "-");
-    const fileName = `${excelPath}/${time}_excelDocument.xlsx`;
+    const fileName = `${outputPath}/${time}-excelDocument.xlsx`;
 
     await workbook.xlsx.writeFile(fileName);
     // console.log(`Excel file generated successfully: ${fileName}`);

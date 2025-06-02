@@ -20,11 +20,13 @@ export const verifyAndUploadDocuments = async (req, res) => {
     //   currentAddress,
     //   filePaths, // If you're getting actual file paths from client/request
     // } = req.body;
-    const { loanType, fullName, permanentAddress, currentAddress } = req.body;
+    const { userId, loanType, fullName, permanentAddress, currentAddress } =
+      req.body;
     const files = req.files;
 
     const pathURl = [];
     const projectRoot = path.resolve();
+    // console.log("Project root directory:", projectRoot);
     files.map((file) => {
       const filePath = file.path;
       const relativeFilePath = path.relative(projectRoot, filePath);
@@ -66,8 +68,8 @@ export const verifyAndUploadDocuments = async (req, res) => {
 
     let extractedTextResults = ""; // Store results of text extraction
 
+    //extracting text from each files and then storing the result in extractedTextResults
     for (const relativePath of imageFilePaths) {
-      //now the png files in the temp/pdf2Images folder are ready to be processed
       const extractedTextResult = await processMyFile(relativePath);
       extractedTextResults += extractedTextResult;
 
@@ -80,52 +82,50 @@ export const verifyAndUploadDocuments = async (req, res) => {
           `Skipping upload for ${relativePath} due to OCR failure or file not found.`
         );
       }
-
-      const openAIResult = await processGoogleVisionOutput(
-        extractedTextResults
-      );
-      console.log("Structured Data Result:", openAIResult);
-
-      const excelResult = await generateExcelDocument(openAIResult);
-      console.log("Excel document generated:", excelResult);
-
-      // const absoluteFilePath = path.resolve(relativePath); // Use path.resolve for absolute path
-      // console.log("Attempting to process local file:", absoluteFilePath);
-
-      // for (const imagePath of result) {
-      // }
-
-      // const fileBuffer = await fs.readFile(absoluteFilePath);
-
-      // const uploadResult = await uploadToCloudinary(fileBuffer, {
-      /* optional cloudinary options like resource_type */
-      // });
-      // documentUrls.push(uploadResult.secure_url);
     }
+    const openAIResult = await processGoogleVisionOutput(extractedTextResults);
+    console.log("Structured Data Result:", openAIResult);
 
-    // const secureUrlArray = documentUrls; // Array of secure_url strings
+    const excelResult = await generateExcelDocument(openAIResult);
+    console.log("Excel document generated:", excelResult);
+
+    const excelSheetPath = path.relative(projectRoot, excelResult); // Use path.resolve for absolute path
+    console.log("Relative path to the generated excel sheet: ", excelSheetPath);
+
+    const protocol = req.protocol; // http or https
+    const host = req.get("host");
+    const excelSheetUrl = `${protocol}://${host}/${excelSheetPath}`;
+    // for (const imagePath of result) {
+    // }
+
+    const fileBuffer = await fs.readFile(excelSheetPath);
+
+    const secureUrlArray = []; // Array to hold secure URLs of uploaded files
+    const uploadResult = await uploadToCloudinary(fileBuffer);
+    console.log("Upload result:", uploadResult);
+    secureUrlArray.push(uploadResult.secure_url);
 
     // Uncomment and use this block once you are satisfied with file processing
-    // const newFile = await db
-    //   .insert(documents)
-    //   .values({
-    //     userId,
-    //     loanType,
-    //     fullName,
-    //     permanentAddress,
-    //     currentAddress,
-    //     secureUrl: secureUrlArray, // Ensure your schema can handle an array of URLs
-    //   })
-    //   .returning();
-    // console.log("New file record:", newFile);
+    const newFile = await db
+      .insert(documents)
+      .values({
+        userId,
+        loanType,
+        fullName,
+        permanentAddress,
+        currentAddress,
+        secureUrl: secureUrlArray, // Ensure your schema can handle an array of URLs
+      })
+      .returning();
+    console.log("New file record:", newFile);
 
     return res.status(200).json({
       message: "Files verified and uploaded successfully",
-      extractedTextResults: localFilePaths.map((p) => ({
-        filename: path.basename(p),
-        text: "OCR result logged to console, check server logs", // Or pass it back if needed
-      })),
-      uploadedUrls: secureUrlArray,
+      // extractedTextResults: localFilePaths.map((p) => ({
+      //   filename: path.basename(p),
+      //   text: "OCR result logged to console, check server logs", // Or pass it back if needed
+      // })),
+      uploadedUrls: excelSheetUrl,
     });
   } catch (error) {
     console.error("Error verifying and uploading files:", error);
