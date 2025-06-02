@@ -371,7 +371,7 @@ export const extractStructuredData = async (text) => {
       console.log(
         "No valid OpenAI API key found, using fallback structured data"
       );
-      // Return basic structured data with raw text
+      // Fallback structured data if OpenAI API key is not valid
       return {
         raw_extracted_text: text,
         document_type: "Unknown",

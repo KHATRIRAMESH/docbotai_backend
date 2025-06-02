@@ -11,7 +11,8 @@ export const processGoogleVisionOutput = async (googleVisionOcrText) => {
     if (structuredResult.error) {
       console.error("Error during structuring:", structuredResult.error);
     } else {
-      console.log("Structured Data:", structuredResult);
+      // console.log("Structured Data:", structuredResult);
+      return structuredResult;
       // Now you have a JavaScript object (structuredResult)
       // with fields like first_name, address, document_type, etc.,
       // and raw_extracted_text.

@@ -39,11 +39,34 @@ export const verifyAndUploadDocuments = async (req, res) => {
       });
     }
 
+    const imageFilePaths = [];
+    const pdfFilePaths = [];
+
+    for (const url of pathURl) {
+      if (url.endsWith(".pdf")) {
+        pdfFilePaths.push(url);
+      } else {
+        imageFilePaths.push(url);
+      }
+    }
+    console.log("Image file paths:", imageFilePaths);
+    console.log("PDF file paths:", pdfFilePaths);
+    // Process image files directly
+
+    for (const element of pathURl) {
+      if (element.endsWith(".pdf")) {
+        const result = await convertPdfToImages(element, "temp/pdf2Images");
+        imageFilePaths.push(...result); // Add converted image paths to the array
+        console.log("Converted PDF to images:", result);
+        // process result if needed
+      }
+    }
+
     // const documentUrls = []; // Renamed to plural for clarity if multiple
 
     let extractedTextResults = ""; // Store results of text extraction
 
-    for (const relativePath of pathURl) {
+    for (const relativePath of imageFilePaths) {
       //now the png files in the temp/pdf2Images folder are ready to be processed
       const extractedTextResult = await processMyFile(relativePath);
       extractedTextResults += extractedTextResult;
@@ -57,14 +80,17 @@ export const verifyAndUploadDocuments = async (req, res) => {
           `Skipping upload for ${relativePath} due to OCR failure or file not found.`
         );
       }
+
+      const openAIResult = await processGoogleVisionOutput(
+        extractedTextResults
+      );
+      console.log("Structured Data Result:", openAIResult);
+
+      const excelResult = await generateExcelDocument(openAIResult);
+      console.log("Excel document generated:", excelResult);
+
       // const absoluteFilePath = path.resolve(relativePath); // Use path.resolve for absolute path
       // console.log("Attempting to process local file:", absoluteFilePath);
-
-      // const result = await convertPdfToImages(
-      //   absoluteFilePath,
-      //   "temp/pdf2Images"
-      // );
-      // console.log("PDF to image conversion result:", result);
 
       // for (const imagePath of result) {
       // }
@@ -76,12 +102,6 @@ export const verifyAndUploadDocuments = async (req, res) => {
       // });
       // documentUrls.push(uploadResult.secure_url);
     }
-
-    const result = await processGoogleVisionOutput(extractedTextResults);
-    console.log("Structured Data Result:", result);
-
-    // const excelResult = await generateExcelDocument();
-    // console.log("Excel document generated:", excelResult);
 
     // const secureUrlArray = documentUrls; // Array of secure_url strings
 
