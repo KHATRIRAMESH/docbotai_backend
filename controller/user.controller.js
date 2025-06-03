@@ -70,7 +70,7 @@ export const getUserById = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const { email, fullName, phone, role = "user" } = req.body;
+    const { email, fullName, phone, role } = req.body;
 
     // Basic validation
     if (!email || !fullName) {

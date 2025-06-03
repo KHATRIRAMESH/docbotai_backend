@@ -21,28 +21,35 @@ CREATE TABLE "documents" (
 --> statement-breakpoint
 CREATE TABLE "loan_applications" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"userId" varchar(100) NOT NULL,
 	"loan_type" varchar(100) NOT NULL,
-	"amount" numeric(12, 2),
-	"purpose" text,
-	"employment_type" varchar(50),
-	"monthly_income" numeric(12, 2),
+	"full_name" varchar(255) NOT NULL,
+	"files" jsonb,
 	"status" varchar(50) DEFAULT 'pending',
-	"admin_notes" text,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "notifications" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"application_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(100) NOT NULL,
 	"title" varchar(255) NOT NULL,
 	"message" text NOT NULL,
 	"type" varchar(50) NOT NULL,
 	"is_read" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now(),
 	CONSTRAINT "notifications_id_unique" UNIQUE("id")
+);
+--> statement-breakpoint
+CREATE TABLE "rooms" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"room_id" varchar(100) NOT NULL,
+	"user_id" varchar(255) NOT NULL,
+	"admin_id" varchar(255),
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
+	CONSTRAINT "rooms_room_id_unique" UNIQUE("room_id")
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
@@ -60,7 +67,4 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_application_id_loan_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."loan_applications"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "loan_applications" ADD CONSTRAINT "loan_applications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notifications" ADD CONSTRAINT "notifications_application_id_loan_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."loan_applications"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

@@ -9,6 +9,7 @@ import { fileURLToPath } from "url";
 
 import userRoutes from "./routes/users.route.js";
 import fileRoutes from "./routes/files.route.js";
+import notificationRoutes from "./routes/notification.route.js";
 // import documentsRoutes from "./routes/documents.route.js";
 
 // Create Express application
@@ -24,23 +25,24 @@ const PORT = process.env.PORT || 8000;
 const ALLOWED_ORIGINS = ["http://localhost:3000"].filter(Boolean);
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "Access-Control-Allow-Origin",
-    "Access-Control-Allow-Headers",
-    "Access-Control-Allow-Credentials",
-  ],
+  // origin: function (origin, callback) {
+  //   if (!origin || ALLOWED_ORIGINS.indexOf(origin) !== -1) {
+  //     callback(null, true);
+  //   } else {
+  //     callback(new Error("Not allowed by CORS"));
+  //   }
+  // },
+  // credentials: true,
+  // methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  // allowedHeaders: [
+  //   "Content-Type",
+  //   "Authorization",
+  //   "Access-Control-Allow-Origin",
+  //   "Access-Control-Allow-Headers",
+  //   "Access-Control-Allow-Credentials",
+  // ],
+  origin: "http://localhost:3000",
+  // credentials: true,
 };
 
 // Basic middleware
@@ -70,11 +72,17 @@ app.get("/", (req, res) => {
   0;
 });
 
+//user routers handling:
 app.use("/api/users", userRoutes);
 // console.log("User routes initialized");
+
+// File upload and document handling routes
 app.use("/api/upload-docs", fileRoutes);
 app.use("/api/admin-verify", fileRoutes);
 // app.use("/api/generate-docs", documentsRoutes);
+
+//notification routes handling:
+app.use("/api/notification", notificationRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {

@@ -9,6 +9,7 @@ import {
   decimal,
   integer,
   jsonb,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 // Users table
@@ -27,16 +28,11 @@ export const users = pgTable("users", {
 // Loan applications table
 export const loanApplications = pgTable("loan_applications", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
+  userId: varchar("userId", { length: 100 }).notNull(),
   loanType: varchar("loan_type", { length: 100 }).notNull(),
-  amount: decimal("amount", { precision: 12, scale: 2 }),
-  purpose: text("purpose"),
-  employmentType: varchar("employment_type", { length: 50 }),
-  monthlyIncome: decimal("monthly_income", { precision: 12, scale: 2 }),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  files: jsonb("files"), // Array of file URLs
   status: varchar("status", { length: 50 }).default("pending"), // 'pending', 'under_review', 'approved', 'rejected', 'docs_required'
-  adminNotes: text("admin_notes"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -70,16 +66,28 @@ export const applicationComments = pgTable("application_comments", {
 
 // Notifications table
 export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey().unique(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  applicationId: integer("application_id").references(
-    () => loanApplications.id
-  ),
+  id: uuid("id").defaultRandom().primaryKey().unique(),
+  //this will be implemented later when the user table is ready
+  // userId: integer("user_id")
+  //   .references(() => users.id)
+  //   .notNull(),
+  userId: varchar("user_id", { length: 100 }).notNull(),
+  // applicationId: integer("application_id").references(
+  //   () => loanApplications.id
+  // ),
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
-  type: varchar("type", { length: 50 }).notNull(), // 'document_uploaded', 'admin_comment', 'status_change', etc.
+  type: varchar("type", { length: 50 }).notNull(),
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const rooms = pgTable("rooms", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  roomId: varchar("room_id", { length: 100 }).notNull().unique(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  adminId: varchar("admin_id", { length: 255 }), // nullable until admin joins
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
