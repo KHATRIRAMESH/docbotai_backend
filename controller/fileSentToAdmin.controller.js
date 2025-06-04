@@ -4,6 +4,7 @@ import { getIO } from "../socket.js";
 import path from "path";
 
 export const fileSentToAdmin = async (req, res) => {
+  console.log("Received files for admin:", req.files);
   try {
     const { loanType, fullName, permanentAddress, currentAddress, userId } =
       req.body;

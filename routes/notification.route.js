@@ -8,6 +8,7 @@ import {
 const router = express.Router();
 
 router.get("/", getAllNotification);
+
 router.patch("/:id", markNotificationAsRead);
 
 router.delete("/:id", deleteNotification);
