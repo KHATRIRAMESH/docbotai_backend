@@ -1,3 +1,4 @@
+CREATE TYPE "public"."status" AS ENUM('pending', 'under_review', 'approved', 'rejected', 'docs_required');--> statement-breakpoint
 CREATE TABLE "application_comments" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"application_id" integer NOT NULL,
@@ -11,28 +12,30 @@ CREATE TABLE "application_comments" (
 --> statement-breakpoint
 CREATE TABLE "documents" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"loan_type" jsonb,
-	"full_name" text,
-	"permanent_address" text,
-	"current_address" text,
+	"user_id" serial NOT NULL,
+	"application_id" integer NOT NULL,
+	"document_type" varchar(100) NOT NULL,
 	"secure_url" jsonb,
 	"created_at" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "loan_applications" (
 	"id" serial PRIMARY KEY NOT NULL,
+	"loan_code" varchar(100) NOT NULL,
 	"userId" varchar(100) NOT NULL,
 	"loan_type" varchar(100) NOT NULL,
 	"full_name" varchar(255) NOT NULL,
 	"files" jsonb,
-	"status" varchar(50) DEFAULT 'pending',
+	"status" "status" DEFAULT 'pending',
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	CONSTRAINT "loan_applications_loan_code_unique" UNIQUE("loan_code")
 );
 --> statement-breakpoint
 CREATE TABLE "notifications" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" varchar(100) NOT NULL,
+	"application_id" integer,
 	"title" varchar(255) NOT NULL,
 	"message" text NOT NULL,
 	"type" varchar(50) NOT NULL,
@@ -67,4 +70,7 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_application_id_loan_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."loan_applications"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "application_comments" ADD CONSTRAINT "application_comments_admin_id_users_id_fk" FOREIGN KEY ("admin_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "documents" ADD CONSTRAINT "documents_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "documents" ADD CONSTRAINT "documents_application_id_loan_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."loan_applications"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_application_id_loan_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."loan_applications"("id") ON DELETE no action ON UPDATE no action;

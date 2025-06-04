@@ -11,6 +11,7 @@ import userRoutes from "./routes/users.route.js";
 import fileRoutes from "./routes/files.route.js";
 import notificationRoutes from "./routes/notification.route.js";
 // import documentsRoutes from "./routes/documents.route.js";
+import loanApplicationsRoutes from "./routes/loanApplications.route.js";
 
 // Create Express application
 const app = express();
@@ -83,6 +84,9 @@ app.use("/api/admin-verify", fileRoutes);
 
 //notification routes handling:
 app.use("/api/notification", notificationRoutes);
+
+//handling loan applications routing
+app.use("/api/loan-applications", loanApplicationsRoutes);
 
 // 404 handler for undefined routes
 app.use((req, res) => {

@@ -37,33 +37,65 @@ export const fileSentToAdmin = async (req, res) => {
       console.log("file url with the server endpoint: ", file_url);
     });
 
-    await db.insert(notifications).values({
-      userId,
-      title: `New Document Submission from ${fullName}`,
-      message: `User ${fullName} has submitted documents for ${loanType} loan.`,
-      type: "document_submission",
-      isRead: false,
-      createdAt: new Date(),
-    });
+    // const io = getIO();
+
+    // io.to("admins").emit("new-document-submission", {
+    //   userId,
+    //   loanType,
+    //   fullName,
+    //   permanentAddress,
+    //   currentAddress,
+    //   files: files_url,
+    // });
+
+    const insertedApplication = await db
+      .insert(loanApplications)
+      .values({
+        userId,
+        loanCode: `loan-${Date.now()}`, // Generate a unique loan code
+        loanType,
+        fullName,
+        files: files_url,
+        status: "pending",
+      })
+      .returning({
+        id: loanApplications.id,
+        loanCode: loanApplications.loanCode,
+      });
+
+    const applicationId = insertedApplication[0].id;
+    const loanCode = insertedApplication[0].loanCode;
+
+    const insertedNotification = await db
+      .insert(notifications)
+      .values({
+        userId,
+        title: `New Document Submission from ${fullName}`,
+        message: `User ${fullName} has submitted documents for ${loanType} loan.`,
+        type: "document_submission",
+        applicationId,
+        isRead: false,
+        createdAt: new Date(),
+      })
+      .returning({
+        id: notifications.id,
+      });
+
+    const notificationId = insertedNotification[0].id;
     const io = getIO();
 
     io.to("admins").emit("new-document-submission", {
       userId,
       loanType,
+      loanCode,
       fullName,
       permanentAddress,
       currentAddress,
       files: files_url,
+      notificationId,
     });
 
-    //application should be created after verification of the documents by the admin
-    // const newApplication = await db.insert(loanApplications).values({
-    //   userId,
-    //   loanType,
-    //   fullName,
-    //   files: files_url,
-    //   status: "pending",
-    // });
+    //creating loan application record in database so that admin can review it later
     // console.log("New application created:", newApplication);
 
     // const room_id = `session-${userId}`;

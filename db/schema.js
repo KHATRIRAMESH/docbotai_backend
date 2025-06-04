@@ -1,4 +1,3 @@
-import { json } from "drizzle-orm/gel-core";
 import {
   pgTable,
   serial,
@@ -10,7 +9,16 @@ import {
   integer,
   jsonb,
   uuid,
+  pgEnum,
 } from "drizzle-orm/pg-core";
+
+export const statusEnum = pgEnum("status", [
+  "pending",
+  "under_review",
+  "approved",
+  "rejected",
+  "docs_required",
+]);
 
 // Users table
 export const users = pgTable("users", {
@@ -28,22 +36,26 @@ export const users = pgTable("users", {
 // Loan applications table
 export const loanApplications = pgTable("loan_applications", {
   id: serial("id").primaryKey(),
+  loanCode: varchar("loan_code", { length: 100 }).notNull().unique(),
   userId: varchar("userId", { length: 100 }).notNull(),
   loanType: varchar("loan_type", { length: 100 }).notNull(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
   files: jsonb("files"), // Array of file URLs
-  status: varchar("status", { length: 50 }).default("pending"), // 'pending', 'under_review', 'approved', 'rejected', 'docs_required'
-  createdAt: timestamp("created_at").defaultNow(),
+  status: statusEnum().default("pending"), // 'pending', 'under_review', 'approved', 'rejected', 'docs_required'
+  submittedAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Documents table
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
-  loanType: jsonb("loan_type"),
-  fullName: text("full_name"),
-  permanentAddress: text("permanent_address"),
-  currentAddress: text("current_address"),
+  userId: serial("user_id")
+    .references(() => users.id)
+    .notNull(),
+  applicationId: integer("application_id")
+    .references(() => loanApplications.id)
+    .notNull(),
+  documentType: varchar("document_type", { length: 100 }).notNull(), // e.g., 'ID', 'Proof of Income', etc.
 
   secureUrl: jsonb("secure_url"), // From Cloudinary
 
@@ -67,14 +79,11 @@ export const applicationComments = pgTable("application_comments", {
 // Notifications table
 export const notifications = pgTable("notifications", {
   id: uuid("id").defaultRandom().primaryKey().unique(),
-  //this will be implemented later when the user table is ready
-  // userId: integer("user_id")
-  //   .references(() => users.id)
-  //   .notNull(),
+
   userId: varchar("user_id", { length: 100 }).notNull(),
-  // applicationId: integer("application_id").references(
-  //   () => loanApplications.id
-  // ),
+  applicationId: integer("application_id").references(
+    () => loanApplications.id
+  ),
   title: varchar("title", { length: 255 }).notNull(),
   message: text("message").notNull(),
   type: varchar("type", { length: 50 }).notNull(),

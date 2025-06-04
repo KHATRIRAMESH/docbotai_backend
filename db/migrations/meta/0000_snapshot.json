@@ -1,5 +1,5 @@
 {
-  "id": "e616040f-4c56-4055-80b8-79d6554c65f9",
+  "id": "3422ecc4-3ab9-4302-9481-6976a15f1998",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -107,29 +107,23 @@
           "primaryKey": true,
           "notNull": true
         },
-        "loan_type": {
-          "name": "loan_type",
-          "type": "jsonb",
+        "user_id": {
+          "name": "user_id",
+          "type": "serial",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "full_name": {
-          "name": "full_name",
-          "type": "text",
+        "application_id": {
+          "name": "application_id",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "permanent_address": {
-          "name": "permanent_address",
-          "type": "text",
+        "document_type": {
+          "name": "document_type",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false
-        },
-        "current_address": {
-          "name": "current_address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "secure_url": {
           "name": "secure_url",
@@ -146,7 +140,34 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "documents_user_id_users_id_fk": {
+          "name": "documents_user_id_users_id_fk",
+          "tableFrom": "documents",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "documents_application_id_loan_applications_id_fk": {
+          "name": "documents_application_id_loan_applications_id_fk",
+          "tableFrom": "documents",
+          "tableTo": "loan_applications",
+          "columnsFrom": [
+            "application_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -161,6 +182,12 @@
           "name": "id",
           "type": "serial",
           "primaryKey": true,
+          "notNull": true
+        },
+        "loan_code": {
+          "name": "loan_code",
+          "type": "varchar(100)",
+          "primaryKey": false,
           "notNull": true
         },
         "userId": {
@@ -189,7 +216,8 @@
         },
         "status": {
           "name": "status",
-          "type": "varchar(50)",
+          "type": "status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false,
           "default": "'pending'"
@@ -212,7 +240,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "loan_applications_loan_code_unique": {
+          "name": "loan_applications_loan_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "loan_code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -233,6 +269,12 @@
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
+        },
+        "application_id": {
+          "name": "application_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "title": {
           "name": "title",
@@ -268,7 +310,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "notifications_application_id_loan_applications_id_fk": {
+          "name": "notifications_application_id_loan_applications_id_fk",
+          "tableFrom": "notifications",
+          "tableTo": "loan_applications",
+          "columnsFrom": [
+            "application_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "notifications_id_unique": {
@@ -437,7 +493,19 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.status": {
+      "name": "status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "under_review",
+        "approved",
+        "rejected",
+        "docs_required"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},
