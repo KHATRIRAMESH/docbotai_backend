@@ -12,13 +12,11 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-export const statusEnum = pgEnum("status", [
-  "pending",
-  "under_review",
-  "approved",
-  "rejected",
-  "docs_required",
-]);
+export const statusEnum = pgEnum(
+  "status",
+  ["pending", "under_review", "approved", "rejected", "docs_required"],
+  { ifNotExists: true }
+);
 
 // Users table
 export const users = pgTable("users", {
@@ -49,13 +47,11 @@ export const loanApplications = pgTable("loan_applications", {
 // Documents table
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
-  userId: serial("user_id")
-    .references(() => users.id)
-    .notNull(),
-  applicationId: integer("application_id")
-    .references(() => loanApplications.id)
-    .notNull(),
-  documentType: varchar("document_type", { length: 100 }).notNull(), // e.g., 'ID', 'Proof of Income', etc.
+  userId: varchar("user_id", { length: 100 }).notNull(),
+  loanType: varchar("loan_type", { length: 100 }).notNull(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  permanentAddress: text("permanent_address").notNull(),
+  currentAddress: text("current_address").notNull(),
 
   secureUrl: jsonb("secure_url"), // From Cloudinary
 
@@ -99,4 +95,9 @@ export const rooms = pgTable("rooms", {
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const generatedFiles = pgTable("generated_files", {
+  id: serial("id").primaryKey(),
+  excelSheetPath: text("excel_sheet_path").notNull(),
 });

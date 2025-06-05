@@ -1,6 +1,6 @@
 {
-  "id": "4af94cbb-e134-42c6-a140-1c41af4f9b6b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "e30eec8b-53cc-44b8-83b8-7beda17ac25b",
+  "prevId": "4af94cbb-e134-42c6-a140-1c41af4f9b6b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -149,6 +149,31 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.generated_files": {
+      "name": "generated_files",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "excel_sheet_path": {
+          "name": "excel_sheet_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},

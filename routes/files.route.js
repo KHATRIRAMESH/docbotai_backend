@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.post("/", localStore.any(), fileSentToAdmin);
 //api/admin-verify/upload
-router.post("/upload", localStore.any(), verifyAndUploadDocuments);
+// router.post("/upload", localStore.any(), verifyAndUploadDocuments);
+router.post("/upload", verifyAndUploadDocuments);
 
 export default router;

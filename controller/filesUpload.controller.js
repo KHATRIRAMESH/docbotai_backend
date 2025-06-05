@@ -1,6 +1,6 @@
 import fs from "fs/promises"; // For async file operations if needed later
 import { db } from "../db/connection.js";
-import { documents } from "../db/schema.js";
+import { documents, generatedFiles } from "../db/schema.js";
 import { uploadToCloudinary } from "../services/uploadToCloudinary.js";
 import { processGoogleVisionOutput } from "../utils/extractingFuntion.js"; // Ensure this is the correct path
 
@@ -12,24 +12,19 @@ import { generateExcelDocument } from "../services/documentsGeneratingServices/e
 
 export const verifyAndUploadDocuments = async (req, res) => {
   try {
-    // const {
-    //   userId,
-    //   loanType,
-    //   fullName,
-    //   permanentAddress,
-    //   currentAddress,
-    //   filePaths, // If you're getting actual file paths from client/request
-    // } = req.body;
-    const { userId, loanType, fullName, permanentAddress, currentAddress } =
+    console.log("Received files for verification and upload:", req.body);
+    const { userId, loanType, fullName, permanentAddress, files, status } =
       req.body;
-    const files = req.files;
+
+    console.log(Array.isArray(files));
 
     const pathURl = [];
     const projectRoot = path.resolve();
     // console.log("Project root directory:", projectRoot);
     files.map((file) => {
-      const filePath = file.path;
-      const relativeFilePath = path.relative(projectRoot, filePath);
+      // const filePath = file.path;
+      const relativeFilePath = file.split("8000/")[1];
+      console.log(relativeFilePath);
       pathURl.push(relativeFilePath);
     });
     console.log("Relative paths of uploaded files:", pathURl);
@@ -86,19 +81,21 @@ export const verifyAndUploadDocuments = async (req, res) => {
     const openAIResult = await processGoogleVisionOutput(extractedTextResults);
     console.log("Structured Data Result:", openAIResult);
 
-    const excelResult = await generateExcelDocument(openAIResult);
-    console.log("Excel document generated:", excelResult);
+    const excelResultPath = await generateExcelDocument(openAIResult);
+    console.log("Excel document generated:", excelResultPath);
 
-    const excelSheetPath = path.relative(projectRoot, excelResult); // Use path.resolve for absolute path
-    console.log("Relative path to the generated excel sheet: ", excelSheetPath);
+    // const excelSheetPath = path.relative(projectRoot, excelResultPath); // Use path.resolve for absolute path
+    // console.log("Relative path to the generated excel sheet: ", excelSheetPath);
 
     const protocol = req.protocol; // http or https
     const host = req.get("host");
-    const excelSheetUrl = `${protocol}://${host}/${excelSheetPath}`;
+    const excelSheetUrl = `${protocol}://${host}/${excelResultPath}`;
     // for (const imagePath of result) {
     // }
+    const absoluteExcelPath = path.resolve(projectRoot, excelResultPath);
+    const fileBuffer = await fs.readFile(absoluteExcelPath);
 
-    const fileBuffer = await fs.readFile(excelSheetPath);
+    console.log("File buffer read successfully for upload:", fileBuffer);
 
     const secureUrlArray = []; // Array to hold secure URLs of uploaded files
     const uploadResult = await uploadToCloudinary(fileBuffer);
@@ -106,18 +103,32 @@ export const verifyAndUploadDocuments = async (req, res) => {
     secureUrlArray.push(uploadResult.secure_url);
 
     // Uncomment and use this block once you are satisfied with file processing
+    await db
+      .insert(generatedFiles)
+      .values({ excelSheetPath: excelSheetUrl });
     const newFile = await db
       .insert(documents)
       .values({
         userId,
         loanType,
         fullName,
-        permanentAddress,
-        currentAddress,
+        permanentAddress: "New York", // Assuming you want to keep this static for now
+        currentAddress: "New York", // Assuming you want to keep this static for now
         secureUrl: secureUrlArray, // Ensure your schema can handle an array of URLs
       })
       .returning();
     console.log("New file record:", newFile);
+
+    //cleaning up the temporary files after processing
+    // for (const url of imageFilePaths) {
+    //   await fs.unlink(url, (error) => {
+    //     if (error) {
+    //       console.error(`Error deleting file ${url}:`, error);
+    //     } else {
+    //       console.log(`File ${url} deleted successfully`);
+    //     }
+    //   });
+    // }
 
     return res.status(200).json({
       message: "Files verified and uploaded successfully",
