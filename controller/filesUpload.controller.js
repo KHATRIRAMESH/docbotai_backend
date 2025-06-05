@@ -81,7 +81,7 @@ export const verifyAndUploadDocuments = async (req, res) => {
     const openAIResult = await processGoogleVisionOutput(extractedTextResults);
     console.log("Structured Data Result:", openAIResult);
 
-    const excelResultPath = await generateExcelDocument(openAIResult);
+    const excelResultPath = await generateExcelDocument(openAIResult,fullName);
     console.log("Excel document generated:", excelResultPath);
 
     // const excelSheetPath = path.relative(projectRoot, excelResultPath); // Use path.resolve for absolute path
