@@ -8,7 +8,7 @@ export async function showHandler(req, res) {
 
   try {
     const excelDir = 'F:\\NextJS Workspace\\DocBot\\docbotai_backend\\temp\\excel';
-    
+  
     if (!fs.existsSync(excelDir)) {
       return res.status(200).json({ files: [] });
     }
