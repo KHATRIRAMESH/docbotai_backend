@@ -19,7 +19,7 @@ export const generateExcelDocument = async (input,userName) => {
 
     // Get the first object to determine the structure
     const firstObject = dataArray[0];
-    console.log("First object in dataArray:", firstObject);
+    // console.log("First object in dataArray:", firstObject);
 
     // Generate dynamic columns based on object keys
     const dynamicColumns = Object.keys(firstObject).map((key) => {
