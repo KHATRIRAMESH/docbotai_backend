@@ -29,7 +29,7 @@ const __dirname = path.dirname(__filename);
 // Get port from environment or default to 5000
 const PORT = process.env.PORT || 8000;
 
-const ALLOWED_ORIGINS = ["http://localhost:3000"].filter(Boolean);
+const ALLOWED_ORIGINS = ["https://docbotai-frontent.onrender.com"].filter(Boolean);
 
 const corsOptions = {
   // origin: function (origin, callback) {
@@ -48,7 +48,7 @@ const corsOptions = {
   //   "Access-Control-Allow-Headers",
   //   "Access-Control-Allow-Credentials",
   // ],
-  origin: "http://localhost:3000",
+  origin: "https://docbotai-frontent.onrender.com",
   // credentials: true,
 };
 
@@ -60,7 +60,7 @@ app.use(express.urlencoded({ extended: true }));
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://docbotai-frontent.onrender.com",
     credentials: true,
     methods: ["GET", "POST"],
   },
