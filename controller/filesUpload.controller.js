@@ -23,7 +23,7 @@ export const verifyAndUploadDocuments = async (req, res) => {
     // console.log("Project root directory:", projectRoot);
     files.map((file) => {
       // const filePath = file.path;
-      const relativeFilePath = file.split("8000/")[1];
+      const relativeFilePath = file.split(".com/")[1];
       console.log(relativeFilePath);
       pathURl.push(relativeFilePath);
     });
@@ -57,6 +57,7 @@ export const verifyAndUploadDocuments = async (req, res) => {
         console.log("Converted PDF to images:", result);
         // process result if needed
       }
+    
     }
 
     // const documentUrls = []; // Renamed to plural for clarity if multiple
