@@ -2,7 +2,7 @@ import excelJS from "exceljs";
 import { promises as fs } from "fs";
 
 const outputPath = "temp/excel";
-export const generateExcelDocument = async (input,userName) => {
+export const generateExcelDocument = async (input, userName) => {
   const dataArray = Array.isArray(input) ? input : [input];
   // console.log("Generating Excel document with data: ", dataArray);
   await fs.mkdir(outputPath, { recursive: true });
@@ -48,7 +48,10 @@ export const generateExcelDocument = async (input,userName) => {
     };
 
     const time = new Date().toISOString().replace(/[:.]/g, "-");
-    const fileName = `${outputPath}/${userName}-excelDocument.xlsx`;
+    const fileName = `${outputPath}/${userName.replace(
+      " ",
+      ""
+    )}-excelDocument.xlsx`;
 
     await workbook.xlsx.writeFile(fileName);
     // console.log(`Excel file generated successfully: ${fileName}`);
