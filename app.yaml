@@ -1,0 +1,10 @@
+runtime: nodejs
+env: standard
+
+network:
+  session_affinity: true
+
+handlers:
+- url: /.*
+  script: auto
+  secure: always              

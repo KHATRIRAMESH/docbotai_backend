@@ -13,7 +13,11 @@ import notificationRoutes from "./routes/notification.route.js";
 // import documentsRoutes from "./routes/documents.route.js";
 import loanApplicationsRoutes from "./routes/loanApplications.route.js";
 import generatedFilesRoutes from "./routes/generatedFiles.route.js";
-import { deleteHandler, renameHandler, showHandler } from "./controller/importFiles.controller.js";
+import {
+  deleteHandler,
+  renameHandler,
+  showHandler,
+} from "./controller/importFiles.controller.js";
 
 // Create Express application
 const app = express();
@@ -87,9 +91,9 @@ app.use("/api/admin-verify", fileRoutes);
 //notification routes handling:
 app.use("/api/notification", notificationRoutes);
 
-app.use("/api/files/excel",showHandler)
-app.use("/api/files/delete",deleteHandler)
-app.use("/api/files/rename",renameHandler)
+app.use("/api/files/excel", showHandler);
+app.use("/api/files/delete", deleteHandler);
+app.use("/api/files/rename", renameHandler);
 
 //handling loan applications routing
 app.use("/api/loan-applications", loanApplicationsRoutes);
@@ -119,7 +123,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-server.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📍 Local: http://localhost:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
