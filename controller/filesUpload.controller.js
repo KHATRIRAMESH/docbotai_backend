@@ -50,7 +50,7 @@ export const verifyAndUploadDocuments = async (req, res) => {
     console.log("PDF file paths:", pdfFilePaths);
     // Process image files directly
 
-    for (const element of pathURl) {
+    for (const element of pdfFilePaths) {
       if (element.endsWith(".pdf")) {
         const result = await convertPdfToImages(element, "temp/pdf2Images");
         imageFilePaths.push(...result); // Add converted image paths to the array
