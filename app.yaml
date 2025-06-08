@@ -1,4 +1,4 @@
-runtime: nodejs
+runtime: nodejs18
 env: standard
 
 network:
