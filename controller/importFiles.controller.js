@@ -14,6 +14,9 @@ export async function showHandler(req, res) {
     if (!fs.existsSync(excelDir)) {
       return res.status(200).json({ files: [] });
     }
+    const protocol = req.protocol; // http or https
+    const host = req.get("host");
+    const serverURL = `${protocol}://${host}/${excelResultPath}`;
 
     const files = fs
       .readdirSync(excelDir)
@@ -24,7 +27,7 @@ export async function showHandler(req, res) {
 
         return {
           name: filename,
-          url: `http://localhost:8000/temp/excel/${filename}`,
+          url: `${serverURL}/temp/excel/${filename}`,
           size: stats.size,
           createdAt: stats.birthtime.toISOString(),
           modifiedAt: stats.mtime.toISOString(),
